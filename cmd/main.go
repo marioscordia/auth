@@ -21,6 +21,7 @@ func main() {
 	if err != nil {
 		log.Panicf("failed to listen: %v", err)
 	}
+	defer lis.Close()
 
 	s := grpc.NewServer()
 	reflection.Register(s)
