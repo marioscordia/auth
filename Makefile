@@ -8,9 +8,6 @@ LOCAL_MIGRATION_DSN="host=localhost port=$(PG_PORT) dbname=$(PG_DATABASE_NAME) u
 install-golangci-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
 
-lint:
-	PATH=$(LOCAL_BIN):$(PATH) golangci-lint run ./... --config .golangci.pipeline.yaml
-
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
 	GOBIN=$(LOCAL_BIN) go install -mod=mod google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
@@ -21,6 +18,9 @@ install-goose:
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+lint:
+	PATH=$(LOCAL_BIN):$(PATH) golangci-lint run ./... --config .golangci.pipeline.yaml
 
 generate:
 	make generate-auth-api
