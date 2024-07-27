@@ -1,47 +1,71 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"os/signal"
-	"syscall"
 
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"github.com/pressly/goose/v3"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 
-	"github.com/marioscordia/auth/pkg/auth_v1"
+	"github.com/marioscordia/auth/app"
+	"github.com/marioscordia/auth/facility"
 )
 
-const grpcPort = 50051
+const (
+	dbPostgresDriverName   = "postgres"
+	migrationsPostgresPath = "db/migrations"
+)
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
+	cfg, err := facility.NewConfig()
 	if err != nil {
-		log.Panicf("failed to listen: %v", err)
+		log.Panicf("failed to create config: %v", err)
 	}
-	defer lis.Close()
 
-	s := grpc.NewServer()
-	reflection.Register(s)
-	auth_v1.RegisterAuthV1Server(s, &server{})
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDb, cfg.PostgresSslMode)
 
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
-
-	go func() {
-		log.Printf("server listening at %v", lis.Addr())
-
-		if err = s.Serve(lis); err != nil {
-			log.Panicf("failed to serve: %v", err)
+	db, err := sql.Open(dbPostgresDriverName, psqlInfo)
+	if err != nil {
+		log.Panicf("failed to connect to postgres db: %v", err)
+	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Panicf("error closing the db: %v", err)
 		}
 	}()
 
-	<-signalChan
-	log.Println("received shutdown signal")
+	dbx := sqlx.NewDb(db, dbPostgresDriverName)
 
-	s.GracefulStop()
+	if cfg.PostgresMigrate {
+		if err := goose.SetDialect("postgres"); err != nil {
+			log.Panicf("failed to set postgres dialect for goose: %v", err)
+		}
+		if err := goose.Up(db, migrationsPostgresPath); err != nil && !errors.Is(err, goose.ErrAlreadyApplied) {
+			log.Panicf("failed to apply migrations: %v", err)
+		}
+	}
 
-	log.Println("server shutdown complete")
+	server := grpc.NewServer()
+
+	startingCtx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := app.Run(startingCtx, dbx, server, cfg); err != nil {
+		log.Panicf("failed to run app: %v", err)
+	}
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, os.Interrupt)
+
+	<-quit
+
+	server.GracefulStop()
 }

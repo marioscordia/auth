@@ -1,0 +1,1 @@
+bin/goose -dir db/migrations create {name} sql
