@@ -8,6 +8,9 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq" // to initialize connection
+	"github.com/pressly/goose/v3"
+
 	"github.com/marioscordia/auth/closer"
 	"github.com/marioscordia/auth/delivery/grpc"
 	"github.com/marioscordia/auth/facility"
@@ -15,7 +18,6 @@ import (
 	"github.com/marioscordia/auth/repository/postgres"
 	"github.com/marioscordia/auth/service"
 	"github.com/marioscordia/auth/service/user"
-	"github.com/pressly/goose/v3"
 )
 
 const (
