@@ -20,7 +20,6 @@ message CreateRequest {
     string email = 2;
     string password = 3;
     string password_confirm = 4;
-    Role role = 5;
 }
 
 message CreateResponse {
@@ -43,7 +42,7 @@ message GetResponse {
 message UpdateRequest {
     int64 id = 1;
     google.protobuf.StringValue name = 2;
-    Role role = 3;
+    google.protobuf.StringValue email = 3;
 }
 
 message DeleteRequest {
