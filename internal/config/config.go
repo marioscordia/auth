@@ -1,11 +1,11 @@
-package facility
+package config
 
 import (
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
 )
 
-// Config is ...
+// Config is the object with configurable parameters
 type Config struct {
 	PostgresMigrate  bool   `env:"POSTGRES_MIGRATE" envDefault:"true"`
 	PostgresHost     string `env:"POSTGRES_HOST" envDefault:"localhost"`
@@ -18,7 +18,7 @@ type Config struct {
 	GrpcPort int `env:"GRPC_PORT" envDefault:"50051"`
 }
 
-// NewConfig is ...
+// NewConfig is the function that returns Config object
 func NewConfig() (*Config, error) {
 	if err := loadEnv(); err != nil {
 		return nil, err

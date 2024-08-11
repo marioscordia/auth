@@ -10,19 +10,19 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/marioscordia/auth/closer"
+	"github.com/marioscordia/auth/internal/closer"
+	"github.com/marioscordia/auth/internal/config"
 
-	"github.com/marioscordia/auth/facility"
 	"github.com/marioscordia/auth/pkg/auth_v1"
 )
 
-// App is ...
+// App is an object with initialzing and starting methods
 type App struct {
 	provider   *provider
 	grpcServer *grpc.Server
 }
 
-// NewApp is ...
+// NewApp is function that returns App object
 func NewApp(ctx context.Context) (*App, error) {
 	a := &App{}
 
@@ -51,7 +51,7 @@ func (a *App) initDeps(ctx context.Context) error {
 	return nil
 }
 
-// Run is ...
+// Run is a method that starts the application
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()
@@ -67,7 +67,7 @@ func (a *App) initProvider(_ context.Context) error {
 }
 
 func (a *App) initConfig(_ context.Context) error {
-	cfg, err := facility.NewConfig()
+	cfg, err := config.NewConfig()
 	if err != nil {
 		return err
 	}

@@ -14,17 +14,17 @@ func Add(f ...func() error) {
 	globalCloser.Add(f...)
 }
 
-// Wait ...
+// Wait is a function which waits until all closer functions are executed
 func Wait() {
 	globalCloser.Wait()
 }
 
-// CloseAll ...
+// CloseAll is a function that calls all closer functions
 func CloseAll() {
 	globalCloser.CloseAll()
 }
 
-// Closer ...
+// Closer is an object that has methods for adding and calling closer functions
 type Closer struct {
 	mu    sync.Mutex
 	once  sync.Once

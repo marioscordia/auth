@@ -11,13 +11,13 @@ import (
 	_ "github.com/lib/pq" // to initialize connection
 	"github.com/pressly/goose/v3"
 
-	"github.com/marioscordia/auth/closer"
-	"github.com/marioscordia/auth/delivery/grpc"
-	"github.com/marioscordia/auth/facility"
-	repo "github.com/marioscordia/auth/repository"
-	"github.com/marioscordia/auth/repository/postgres"
-	"github.com/marioscordia/auth/service"
-	"github.com/marioscordia/auth/service/user"
+	"github.com/marioscordia/auth/internal/api"
+	"github.com/marioscordia/auth/internal/closer"
+	"github.com/marioscordia/auth/internal/config"
+	repo "github.com/marioscordia/auth/internal/repository"
+	"github.com/marioscordia/auth/internal/repository/postgres"
+	"github.com/marioscordia/auth/internal/service"
+	"github.com/marioscordia/auth/internal/service/user"
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 )
 
 type provider struct {
-	config *facility.Config
+	config *config.Config
 
 	db *sqlx.DB
 
@@ -34,7 +34,7 @@ type provider struct {
 
 	service service.Service
 
-	handler *grpc.Handler
+	handler *api.Handler
 }
 
 func newProvider() *provider {
@@ -96,9 +96,9 @@ func (p *provider) UserService(ctx context.Context) service.Service {
 	return p.service
 }
 
-func (p *provider) UserHandler(ctx context.Context) *grpc.Handler {
+func (p *provider) UserHandler(ctx context.Context) *api.Handler {
 	if p.handler == nil {
-		p.handler = grpc.New(p.UserService(ctx))
+		p.handler = api.New(p.UserService(ctx))
 	}
 
 	return p.handler
