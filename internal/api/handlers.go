@@ -13,19 +13,19 @@ import (
 // New is a function that returns Handler object
 func New(useCase service.Service) *Handler {
 	return &Handler{
-		usecase: useCase,
+		useCase: useCase,
 	}
 }
 
 // Handler is an object, which have methods that receive GRPC requests
 type Handler struct {
 	auth_v1.UnimplementedAuthV1Server
-	usecase service.Service
+	useCase service.Service
 }
 
 // Get is the method that receives GRPC Get request
 func (h *Handler) Get(ctx context.Context, req *auth_v1.GetRequest) (*auth_v1.GetResponse, error) {
-	user, err := h.usecase.GetUser(ctx, req.Id)
+	user, err := h.useCase.GetUser(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -39,9 +39,9 @@ func (h *Handler) Create(ctx context.Context, req *auth_v1.CreateRequest) (*auth
 		return nil, err
 	}
 
-	u := converter.ToUserFromCreateRequest(req)
+	u := converter.ToUserCreateFromCreateRequest(req)
 
-	id, err := h.usecase.CreateUser(ctx, u, req.Password)
+	id, err := h.useCase.CreateUser(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -55,9 +55,9 @@ func (h *Handler) Update(ctx context.Context, req *auth_v1.UpdateRequest) (*empt
 		return nil, err
 	}
 
-	u := converter.ToUserFromUpdateRequest(req)
+	u := converter.ToUserUpdateFromUpdateRequest(req)
 
-	if err := h.usecase.UpdateUser(ctx, u); err != nil {
+	if err := h.useCase.UpdateUser(ctx, u); err != nil {
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func (h *Handler) Update(ctx context.Context, req *auth_v1.UpdateRequest) (*empt
 
 // Delete is the method that receives GRPC Delete request
 func (h *Handler) Delete(ctx context.Context, req *auth_v1.DeleteRequest) (*emptypb.Empty, error) {
-	if err := h.usecase.DeleteUser(ctx, req.Id); err != nil {
+	if err := h.useCase.DeleteUser(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
 

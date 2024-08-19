@@ -20,26 +20,27 @@ func ToUserFromService(u *model.User) *auth_v1.GetResponse {
 	}
 }
 
-// ToUserFromCreateRequest is the method that converts GRPC Create request to User model
-func ToUserFromCreateRequest(req *auth_v1.CreateRequest) *model.User {
-	return &model.User{
-		Name:  req.Name,
-		Email: req.Email,
+// ToUserFromCreateRequest is the method that converts GRPC Create request to UserCreate model
+func ToUserCreateFromCreateRequest(req *auth_v1.CreateRequest) *model.UserCreate {
+	return &model.UserCreate{
+		Name:     req.GetName(),
+		Email:    req.GetEmail(),
+		Password: req.GetPassword(),
 	}
 }
 
-// ToUserFromUpdateRequest is the method that converts GRPC Update request to User model
-func ToUserFromUpdateRequest(req *auth_v1.UpdateRequest) *model.User {
-	u := &model.User{}
+// ToUserUpdateFromUpdateRequest is the method that converts GRPC Update request to UserUpdate model
+func ToUserUpdateFromUpdateRequest(req *auth_v1.UpdateRequest) *model.UserUpdate {
+	u := &model.UserUpdate{}
 
-	u.ID = req.Id
+	u.ID = req.GetId()
 
 	if req.Email != nil {
-		u.Email = req.Name.Value
+		u.Email = req.GetEmail().GetValue()
 	}
 
 	if req.Name != nil {
-		u.Name = req.Name.Value
+		u.Name = req.GetName().GetValue()
 	}
 
 	return u

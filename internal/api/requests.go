@@ -7,20 +7,20 @@ import (
 )
 
 func validateCreateReq(req *auth_v1.CreateRequest) error {
-	if req.Email == "" {
+	if req.GetEmail() == "" {
 		return errors.New("please fill the email")
 	}
 
-	if req.Name == "" {
+	if req.GetName() == "" {
 		return errors.New("please fill the username")
 	}
 
-	if req.Password == "" {
+	if req.GetPassword() == "" {
 		return errors.New("please fill the password")
 
 	}
 
-	if req.Password != req.PasswordConfirm {
+	if req.GetPassword() != req.GetPasswordConfirm() {
 		return errors.New("password is not correctly confirmed")
 	}
 
@@ -28,7 +28,7 @@ func validateCreateReq(req *auth_v1.CreateRequest) error {
 }
 
 func validateUpdateReq(req *auth_v1.UpdateRequest) error {
-	if req.Email.Value == "" && req.Name.Value == "" {
+	if req.GetEmail().GetValue() == "" && req.GetName().GetValue() == "" {
 		return errors.New("updating values are empty")
 	}
 

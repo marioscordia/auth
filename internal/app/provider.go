@@ -30,7 +30,7 @@ type provider struct {
 
 	db *sqlx.DB
 
-	repo repo.Repository
+	repository repo.Repository
 
 	service service.Service
 
@@ -55,14 +55,14 @@ func (p *provider) NewDB() *sqlx.DB {
 
 		if err = dbx.Ping(); err != nil {
 			log.Fatalf("failed to verify connection: %v", err)
-
 		}
 
 		if p.config.PostgresMigrate {
-			if err := goose.SetDialect("postgres"); err != nil {
+			if err = goose.SetDialect("postgres"); err != nil {
 				log.Fatalf("failed to set postgres dialect for goose: %v", err)
 			}
-			if err := goose.Up(db, migrationsPostgresPath); err != nil && !errors.Is(err, goose.ErrAlreadyApplied) {
+
+			if err = goose.Up(db, migrationsPostgresPath); err != nil && !errors.Is(err, goose.ErrAlreadyApplied) {
 				log.Fatalf("failed to apply migrations: %v", err)
 			}
 		}
@@ -76,16 +76,16 @@ func (p *provider) NewDB() *sqlx.DB {
 }
 
 func (p *provider) UserRepository(ctx context.Context) repo.Repository {
-	if p.repo == nil {
+	if p.repository == nil {
 		repo, err := postgres.New(ctx, p.NewDB())
 		if err != nil {
 			log.Fatalf("failed to initialize chat repository: %v", err)
 		}
 
-		p.repo = repo
+		p.repository = repo
 	}
 
-	return p.repo
+	return p.repository
 }
 
 func (p *provider) UserService(ctx context.Context) service.Service {

@@ -25,13 +25,13 @@ func (u *serve) GetUser(ctx context.Context, id int64) (*model.User, error) {
 	return u.repo.GetUser(ctx, id)
 }
 
-func (u *serve) CreateUser(ctx context.Context, user *model.User, password string) (int64, error) {
-	hashCode := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
+func (u *serve) CreateUser(ctx context.Context, user *model.UserCreate) (int64, error) {
+	user.Password = fmt.Sprintf("%x", sha256.Sum256([]byte(user.Password)))
 
-	return u.repo.CreateUser(ctx, user, hashCode)
+	return u.repo.CreateUser(ctx, user)
 }
 
-func (u *serve) UpdateUser(ctx context.Context, user *model.User) error {
+func (u *serve) UpdateUser(ctx context.Context, user *model.UserUpdate) error {
 	return u.repo.UpdateUser(ctx, user)
 }
 
