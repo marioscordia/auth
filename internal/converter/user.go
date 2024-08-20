@@ -20,7 +20,7 @@ func ToUserFromService(u *model.User) *auth_v1.GetResponse {
 	}
 }
 
-// ToUserFromCreateRequest is the method that converts GRPC Create request to UserCreate model
+// ToUserCreateFromCreateRequest is the method that converts GRPC Create request to UserCreate model
 func ToUserCreateFromCreateRequest(req *auth_v1.CreateRequest) *model.UserCreate {
 	return &model.UserCreate{
 		Name:     req.GetName(),

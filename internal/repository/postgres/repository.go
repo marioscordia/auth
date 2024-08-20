@@ -16,7 +16,7 @@ import (
 )
 
 // New is a function that returns Repository object
-func New(ctx context.Context, db *sqlx.DB) (repo.Repository, error) {
+func New(_ context.Context, db *sqlx.DB) (repo.Repository, error) {
 	return &repository{
 		db: db,
 	}, nil
@@ -34,7 +34,7 @@ func (r *repository) CreateUser(ctx context.Context, user *model.UserCreate) (in
 		return 0, err
 	}
 
-	if err := checkName.GetContext(ctx, &exists, user.Name); err != nil {
+	if err = checkName.GetContext(ctx, &exists, user.Name); err != nil {
 		return 0, err
 	}
 	if exists {
@@ -46,7 +46,7 @@ func (r *repository) CreateUser(ctx context.Context, user *model.UserCreate) (in
 		return 0, err
 	}
 
-	if err := checkEmail.GetContext(ctx, &exists, user.Email); err != nil {
+	if err = checkEmail.GetContext(ctx, &exists, user.Email); err != nil {
 		return 0, err
 	}
 	if exists {

@@ -12,14 +12,14 @@ type User struct {
 	UpdatedAt time.Time
 }
 
-// UpdateUser is the object with updating paramters
+// UserUpdate is the object with updating parameters
 type UserUpdate struct {
 	ID    int64
 	Name  string
 	Email string
 }
 
-// CreateUser is the object with creating parameters
+// UserCreate is the object with creating parameters
 type UserCreate struct {
 	Name     string
 	Email    string
