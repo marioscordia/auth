@@ -73,7 +73,7 @@ func (r *repository) CreateUser(ctx context.Context, user *model.UserCreate) (in
 func (r *repository) GetUser(ctx context.Context, id int64) (*model.User, error) {
 	var u modelRepo.UserDB
 
-	getUser, err := r.db.PreparexContext(ctx, `select id, username, email, role, created_at, updated_at from users where id=$1`)
+	getUser, err := r.db.PreparexContext(ctx, `select id, username, email, role, created_at, updated_at from users where id=$1 and deleted_at is null`)
 	if err != nil {
 		return nil, err
 	}

@@ -7,11 +7,14 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // to initialize connection
 	"github.com/pressly/goose/v3"
 
 	"github.com/marioscordia/auth/internal/api"
+	"github.com/marioscordia/auth/internal/client/cache"
+	redisgo "github.com/marioscordia/auth/internal/client/cache/redis"
 	"github.com/marioscordia/auth/internal/closer"
 	"github.com/marioscordia/auth/internal/config"
 	repo "github.com/marioscordia/auth/internal/repository"
@@ -30,7 +33,11 @@ type provider struct {
 
 	db *sqlx.DB
 
+	redisConn redis.Conn
+
 	repository repo.Repository
+
+	userCache cache.Cache
 
 	service service.Service
 
@@ -88,9 +95,39 @@ func (p *provider) UserRepository(ctx context.Context) repo.Repository {
 	return p.repository
 }
 
+func (p *provider) NewRedisConn(ctx context.Context) redis.Conn {
+	if p.redisConn == nil {
+		connInfo := fmt.Sprintf("%s:%d", p.config.RedisHost, p.config.RedisPort)
+
+		conn, err := redis.DialContext(
+			ctx,
+			"tcp",
+			connInfo,
+		)
+
+		if err != nil {
+			log.Fatalf("failed to connect to redis: %v", err)
+		}
+
+		p.redisConn = conn
+
+		closer.Add(conn.Close)
+	}
+
+	return p.redisConn
+}
+
+func (p *provider) UserCache(ctx context.Context) cache.Cache {
+	if p.userCache == nil {
+		p.userCache = redisgo.NewUserCache(p.NewRedisConn(ctx))
+	}
+
+	return p.userCache
+}
+
 func (p *provider) UserService(ctx context.Context) service.Service {
 	if p.service == nil {
-		p.service = user.New(p.UserRepository(ctx))
+		p.service = user.New(p.UserRepository(ctx), p.UserCache(ctx))
 	}
 
 	return p.service

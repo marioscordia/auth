@@ -3,6 +3,7 @@ module github.com/marioscordia/auth
 go 1.22.4
 
 require (
+	github.com/gomodule/redigo v1.9.2
 	github.com/lib/pq v1.10.9
 	google.golang.org/grpc v1.65.0
 )

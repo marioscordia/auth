@@ -15,6 +15,12 @@ type Config struct {
 	PostgresDb       string `env:"POSTGRES_DB,required"`
 	PostgresSslMode  string `env:"POSTGRES_SSL_MODE" envDefault:"disable"`
 
+	RedisHost         string `env:"REDIS_HOST" envDefault:"localhost"`
+	RedisPort         int    `env:"REDIS_PORT,required"`
+	RedisConnTimeout  int    `env:"REDIS_CONNECTION_TIMEOUT_SEC"`
+	RedisReadTimeout  int    `env:"REDIS_READ_TIMEOUT_SEC"`
+	RedisWriteTimeout int    `env:"REDIS_WRITE_TIMEOUT_SEC"`
+
 	GrpcPort int `env:"GRPC_PORT" envDefault:"50051"`
 }
 
