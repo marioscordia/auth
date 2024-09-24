@@ -26,6 +26,7 @@ type repository struct {
 	db *sqlx.DB
 }
 
+// CreateUser is a method that creates user in database
 func (r *repository) CreateUser(ctx context.Context, user *model.UserCreate) (int64, error) {
 	var exists bool
 
@@ -70,10 +71,11 @@ func (r *repository) CreateUser(ctx context.Context, user *model.UserCreate) (in
 	return id, nil
 }
 
+// GetUser is a method for getting a user from database
 func (r *repository) GetUser(ctx context.Context, id int64) (*model.User, error) {
 	var u modelRepo.UserDB
 
-	getUser, err := r.db.PreparexContext(ctx, `select id, username, email, role, created_at, updated_at from users where id=$1`)
+	getUser, err := r.db.PreparexContext(ctx, `select id, username, email, role, created_at, updated_at from users where id=$1 and deleted_at is null`)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +87,7 @@ func (r *repository) GetUser(ctx context.Context, id int64) (*model.User, error)
 	return converter.ToUserFromRepo(&u), nil
 }
 
+// UpdateUser is a method for updating a user in database
 func (r *repository) UpdateUser(ctx context.Context, user *model.UserUpdate) error {
 	q := "update users set "
 
@@ -132,6 +135,7 @@ func (r *repository) UpdateUser(ctx context.Context, user *model.UserUpdate) err
 	return err
 }
 
+// DeleteUser is a method that deletes a user in database
 func (r *repository) DeleteUser(ctx context.Context, id int64) error {
 	deleteUser, err := r.db.PreparexContext(ctx, `update users set deleted_at=now(), status='inactive' where id=$1`)
 	if err != nil {
