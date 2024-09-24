@@ -24,6 +24,7 @@ type serve struct {
 	cache cache.Cache
 }
 
+// GetUser is a method that returns User object from UserRepository layer
 func (u *serve) GetUser(ctx context.Context, id int64) (*model.User, error) {
 	user := u.cache.Get(ctx, id)
 	if user != nil {
@@ -40,6 +41,7 @@ func (u *serve) GetUser(ctx context.Context, id int64) (*model.User, error) {
 	return user, nil
 }
 
+// CreateUser is a method that creates user by passing to UserRepository layer
 func (u *serve) CreateUser(ctx context.Context, user *model.UserCreate) (int64, error) {
 	user.Password = fmt.Sprintf("%x", sha256.Sum256([]byte(user.Password)))
 
@@ -58,6 +60,7 @@ func (u *serve) CreateUser(ctx context.Context, user *model.UserCreate) (int64, 
 	return id, nil
 }
 
+// UpdateUser is a method that updates user by passing to UserRepository layer
 func (u *serve) UpdateUser(ctx context.Context, user *model.UserUpdate) error {
 	if err := u.repo.UpdateUser(ctx, user); err != nil {
 		return err
@@ -68,6 +71,7 @@ func (u *serve) UpdateUser(ctx context.Context, user *model.UserUpdate) error {
 	return nil
 }
 
+// DeleteUser is a method for deleting user from cache and in UserRepository
 func (u *serve) DeleteUser(ctx context.Context, id int64) error {
 	if err := u.repo.DeleteUser(ctx, id); err != nil {
 		return err
